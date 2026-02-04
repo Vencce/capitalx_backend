@@ -7,13 +7,17 @@ class AdministradoraSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CartaSerializer(serializers.ModelSerializer):
-    administradora_nome = serializers.ReadOnlyField(source='administradora.nome')
-    tipo_display = serializers.CharField(source='get_tipo_display', read_only=True)
-    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    administradora_detalhes = AdministradoraSerializer(source='administradora', read_only=True)
 
     class Meta:
         model = Carta
-        fields = '__all__'
+        fields = [
+            'id', 'codigo', 'tipo', 'valor_credito', 'valor_entrada', 
+            'valor_parcela', 'numero_parcelas', 'vencimento', 
+            'taxa_transferencia', 'tipo_contemplacao', 'saldo_devedor', 
+            'seguro_vida', 'observacoes', 'status', 'administradora',
+            'administradora_detalhes'
+        ]
 
 class ConfiguracaoSerializer(serializers.ModelSerializer):
     class Meta:
