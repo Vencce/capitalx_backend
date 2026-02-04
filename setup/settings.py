@@ -142,15 +142,21 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'seu-app-no-render.onrender.com',
-    'capitalxinvest.com.br',
-    'capitalxinvest.vercel.app'
+    'capitalxinvest.onrender.com',    # Domínio do Render (essencial para o erro sumir)
+    'capitalxinvest.com.br',          # Seu domínio próprio
+    'capitalxinvest.vercel.app',      # Domínio do frontend
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://capitalxinvest.vercel.app",
     "https://capitalxinvest.com.br",
+]
+
+# Permite que o CSRF funcione com o domínio novo
+CSRF_TRUSTED_ORIGINS = [
+    "https://capitalxinvest.onrender.com",
+    "https://capitalxinvest.com.br"
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
