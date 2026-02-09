@@ -27,18 +27,24 @@ SECRET_KEY = 'django-insecure-52&w3xhq#$#3!)%cjbnf!j!hcel_o(&u6+0&^k17@f$a&kswl0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'capitalxinvest.onrender.com',
+    'capitalxinvest.com.br',
+    'capitalxinvest.vercel.app',
+]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'cloudinary_storage', # Cloudinary Storage DEVE vir antes do staticfiles
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'cloudinary',
     'django.contrib.staticfiles',
     'rest_framework',
@@ -50,12 +56,12 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Essencial para o CSS no Render
-    'django.contrib.sessions.middleware.SessionMiddleware',  # Deve vir antes do Auth
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Depende do Session acima
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -97,7 +103,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(os.path.dirname(os.path.abspath(__file__)), 'db.sqlite3'),
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
 
@@ -124,9 +130,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
@@ -139,6 +145,19 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Configuração Cloudinary para Mídias
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Mídia Local (Usada apenas se o Cloudinary não estiver ativo)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
@@ -146,20 +165,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny', # Aberto por padrão (para o site), vamos fechar no Admin
+        'rest_framework.permissions.AllowAny',
     ],
 }
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'capitalxinvest.onrender.com',    # Domínio do Render (essencial para o erro sumir)
-    'capitalxinvest.com.br',          # Seu domínio próprio
-    'capitalxinvest.vercel.app',      # Domínio do frontend
-]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -167,19 +175,9 @@ CORS_ALLOWED_ORIGINS = [
     "https://capitalxinvest.com.br",
 ]
 
-# Permite que o CSRF funcione com o domínio novo
 CSRF_TRUSTED_ORIGINS = [
     "https://capitalxinvest.onrender.com",
     "https://capitalxinvest.com.br"
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
-}
-
-# Define o Cloudinary como armazenamento padrão de mídias
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
