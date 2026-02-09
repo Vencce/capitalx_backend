@@ -139,45 +139,33 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
+# --- ARQUIVOS ESTÁTICOS (CSS, JS, Images) ---
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# CORREÇÃO 1: Adicione a barra no início (Vital para o Admin funcionar)
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Configuração Cloudinary para Mídias
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# CORREÇÃO 2: Configuração Moderna (Django 5+)
+# Isso resolve o problema do Cloudinary não salvar e configura o WhiteNoise
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# Configuração Cloudinary (Mantém igual)
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-# Mídia Local (Usada apenas se o Cloudinary não estiver ativo)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-CORS_ALLOW_ALL_ORIGINS = True
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
-}
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "https://capitalxinvest.vercel.app",
-    "https://capitalxinvest.com.br",
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://capitalxinvest.onrender.com",
-    "https://capitalxinvest.com.br"
-]
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Apague ou comente a linha antiga abaixo, pois ela foi substituída pelo STORAGES
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
