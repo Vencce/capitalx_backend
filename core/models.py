@@ -4,7 +4,7 @@ import uuid
 class Administradora(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nome = models.CharField(max_length=100)
-    logo = models.ImageField(upload_to='logos_bancos/', null=True, blank=True)
+    logo = models.ImageField(upload_to='logos_bancos/')
 
     def __str__(self):
         return self.nome
