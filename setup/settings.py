@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     'capitalxinvest.onrender.com',
     'capitalxinvest.com.br',
     'capitalxinvest.vercel.app',
+    'api.capitalxinvest.com.br',
 ]
 
 
@@ -174,11 +175,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://capitalxinvest.vercel.app",
     "https://capitalxinvest.com.br",
+    "https://contempladas.capitalxinvest.com.br",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://capitalxinvest.onrender.com",
-    "https://capitalxinvest.com.br"
+    "https://api.capitalxinvest.com.br",
+    "https://contempladas.capitalxinvest.com.br"
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
