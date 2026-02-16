@@ -45,7 +45,7 @@ class Carta(models.Model):
     vencimento = models.DateField(null=True, blank=True, verbose_name="Próximo Vencimento / Validade")
     
     # Agora aceita texto (Ex: "Grátis", "1 Salário")
-    taxa_transferencia = models.CharField(max_length=100, default="Grátis", verbose_name="Taxa de Transferência")
+    taxa_transferencia = models.CharField(max_length=100, default="A consultar", verbose_name="Taxa de Transferência")
     
     tipo_contemplacao = models.CharField(max_length=50, default="Sorteio", help_text="Ex: Sorteio, Lance")
     observacoes = models.TextField(null=True, blank=True, verbose_name="Observações Gerais")
