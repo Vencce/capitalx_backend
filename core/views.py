@@ -4,60 +4,60 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated, AllowAny
-import csv
+from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib import colors
 from datetime import datetime
-from rest_framework.views import APIView
 
 from .models import Administradora, Carta, Configuracao
 from .serializers import AdministradoraSerializer, CartaSerializer, ConfiguracaoSerializer
+from .services import executar_sincronizacao
 
 class AdministradoraViewSet(viewsets.ModelViewSet):
     queryset = Administradora.objects.all()
     serializer_class = AdministradoraSerializer
-    # Permite leitura pública, mas escrita apenas autenticada (opcional, aqui deixei aberto ou conforme sua config global)
-    permission_classes_by_action = {'create': [IsAuthenticated], 'update': [IsAuthenticated], 'destroy': [IsAuthenticated], 'default': [AllowAny]}
-
-    def get_permissions(self):
-        try:
-            return [permission() for permission in self.permission_classes_by_action[self.action]]
-        except KeyError:
-            return [permission() for permission in self.permission_classes_by_action['default']]
+    permission_classes = [AllowAny] 
 
 class CartaViewSet(viewsets.ModelViewSet):
     queryset = Carta.objects.all()
     serializer_class = CartaSerializer
     
-    permission_classes_by_action = {'create': [IsAuthenticated], 'update': [IsAuthenticated], 'destroy': [IsAuthenticated], 'default': [AllowAny]}
+    def get_queryset(self):
+        queryset = Carta.objects.all()
+        # Permite filtrar por origem via URL: /api/cartas/?origem=PARCEIRO
+        origem = self.request.query_params.get('origem')
+        if origem:
+            queryset = queryset.filter(origem=origem)
+        return queryset
 
     def get_permissions(self):
-        try:
-            return [permission() for permission in self.permission_classes_by_action[self.action]]
-        except KeyError:
-            return [permission() for permission in self.permission_classes_by_action['default']]
-
-class ConfiguracaoView(APIView):
-    """
-    Endpoint para buscar ou editar as configurações gerais.
-    Sempre trabalha com o registro de ID=1.
-    """
-    def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.action in ['list', 'retrieve']:
             return [AllowAny()]
         return [IsAuthenticated()]
 
-    def get(self, request):
-        config, created = Configuracao.objects.get_or_create(id=1)
-        serializer = ConfiguracaoSerializer(config)
-        return Response(serializer.data)
+class SincronizarCartasView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        config, created = Configuracao.objects.get_or_create(id=1)
+        resultado = executar_sincronizacao()
+        if resultado:
+            return Response(resultado)
+        return Response({"error": "Falha na sincronização"}, status=400)
+
+class ConfiguracaoView(APIView):
+    def get_permissions(self):
+        if self.request.method == 'GET': return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get(self, request):
+        config, _ = Configuracao.objects.get_or_create(id=1)
+        return Response(ConfiguracaoSerializer(config).data)
+
+    def post(self, request):
+        config, _ = Configuracao.objects.get_or_create(id=1)
         serializer = ConfiguracaoSerializer(config, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -66,7 +66,7 @@ class ConfiguracaoView(APIView):
 
 class CustomLoginView(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        response = super(CustomLoginView, self).post(request, *args, **kwargs)
+        response = super().post(request, *args, **kwargs)
         token = Token.objects.get(key=response.data['token'])
         return Response({'token': token.key, 'user_id': token.user_id})
 
