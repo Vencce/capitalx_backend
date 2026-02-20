@@ -7,10 +7,10 @@ router.register(r'administradoras', AdministradoraViewSet)
 router.register(r'cartas', CartaViewSet)
 
 urlpatterns = [
+    path('cartas/sincronizar/', SincronizarCartasView.as_view(), name='sincronizar-cartas'),
     path('', include(router.urls)),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('configuracoes/', ConfiguracaoView.as_view(), name='configuracoes'),
     path('exportar/excel/', ExportarExcelView.as_view(), name='export-excel'),
     path('exportar/pdf/', ExportarPDFView.as_view(), name='export-pdf'),
-    path('cartas/sincronizar/', SincronizarCartasView.as_view(), name='sincronizar-cartas'),
 ]
