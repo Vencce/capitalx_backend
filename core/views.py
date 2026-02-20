@@ -38,14 +38,13 @@ class CartaViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         return [IsAuthenticated()]
 
-class SincronizarCartasView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        resultado = executar_sincronizacao()
-        if resultado:
-            return Response(resultado)
-        return Response({"error": "Falha na sincronização"}, status=400)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def sincronizar_cartas_view(request):
+    resultado = executar_sincronizacao()
+    if resultado:
+        return Response(resultado)
+    return Response({"error": "Falha na sincronização"}, status=400)
 
 class ConfiguracaoView(APIView):
     def get_permissions(self):
