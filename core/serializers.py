@@ -4,7 +4,7 @@ from .models import Administradora, Carta, Configuracao
 class AdministradoraSerializer(serializers.ModelSerializer):
     class Meta:
         model = Administradora
-        fields = '__all__'
+        fields = ['id', 'nome', 'logo', 'logo_url_externa']
 
 class CartaSerializer(serializers.ModelSerializer):
     administradora_detalhes = AdministradoraSerializer(source='administradora', read_only=True)
