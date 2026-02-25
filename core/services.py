@@ -15,13 +15,17 @@ def executar_sincronizacao():
         atualizadas = 0
 
         for item in dados_api:
-            # 1. Busca ou Cria a Administradora usando a imagem da API
-            admin, _ = Administradora.objects.update_or_create(
-                nome=item['administradora'].strip(),
-                defaults={
-                    'logo_url_externa': item.get('administradora_img')
-                }
+            # 1. Busca ou Cria a Administradora (Trava de Segurança)
+            # Usamos get_or_create para não sobrescrever o que já existe
+            admin, created = Administradora.objects.get_or_create(
+                nome=item['administradora'].strip()
             )
+
+            # Só adicionamos a logo da API se for uma admin nova 
+            # ou se a que existe estiver sem logo nenhuma
+            if created or (not admin.logo and not admin.logo_url_externa):
+                admin.logo_url_externa = item.get('administradora_img')
+                admin.save()
 
             # 2. Mapeia Categoria (API: Veículo/Imóvel -> Seu Model: AUTOMOVEL/IMOVEL)
             tipo_map = {'Veículo': 'AUTOMOVEL', 'Imóvel': 'IMOVEL'}
@@ -30,9 +34,9 @@ def executar_sincronizacao():
             # 3. Mapeia Status
             status_final = 'RESERVADO' if item.get('reserva') == 'Reservado' else 'DISPONIVEL'
 
-            # 4. Salva no Banco
-            obj, created = Carta.objects.update_or_create(
-                codigo=f"FB-{item['id']}", # Garante que não duplique
+            # 4. Salva no Banco (Aqui mantemos update_or_create para atualizar valores)
+            obj, created_carta = Carta.objects.update_or_create(
+                codigo=f"FB-{item['id']}",
                 defaults={
                     'tipo': tipo_final,
                     'origem': 'PARCEIRO',
@@ -46,8 +50,10 @@ def executar_sincronizacao():
                 }
             )
 
-            if created: novas += 1
-            else: atualizadas += 1
+            if created_carta: 
+                novas += 1
+            else: 
+                atualizadas += 1
                 
         return {"novas": novas, "atualizadas": atualizadas}
         
